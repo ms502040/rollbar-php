@@ -1,5 +1,5 @@
 {
-  "name": "ms502040/rollbar",
+  "name": "ms502040/rollbar-php",
   "description": "Monitors errors and exceptions and reports them to Rollbar",
   "type": "library",
   "keywords": ["logging", "debugging", "monitoring", "errors", "exceptions"],
@@ -61,7 +61,7 @@
     "get-js-snippet": "curl -X GET https://raw.githubusercontent.com/rollbar/rollbar.js/v2.3.6/dist/rollbar.snippet.js > data/rollbar.snippet.js",
     "performance": "phpunit --coverage-clover build/logs/clover.xml --testsuite 'Rollbar Performance Test Suite'"
   },
-  
+
   "config": {
     "process-timeout": 600
   }
