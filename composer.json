@@ -8,20 +8,16 @@
 
   "authors": [
     {
-      "name": "Rollbar, Inc.",
-      "email": "support@rollbar.com",
-      "role": "Developer"
-    },
-    {
       "name": "Mira",
       "email": "ms502040@gmail.com",
       "role": "Developer"
+    }.
+    {
+      "name": "Rollbar, Inc.",
+      "email": "support@rollbar.com",
+      "role": "Developer"
     }
   ],
-
-  "support": {
-    "email": "support@rollbar.com"
-  },
 
   "autoload": {
     "psr-4": {
