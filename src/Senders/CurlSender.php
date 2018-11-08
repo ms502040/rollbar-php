@@ -26,7 +26,7 @@ class CurlSender implements SenderInterface
     {
         $this->endpoint = \Rollbar\Defaults::get()->endpoint() . 'item/';
         $this->timeout = \Rollbar\Defaults::get()->timeout();
-        
+
         $this->utilities = new \Rollbar\Utilities();
         if (isset($_ENV['ROLLBAR_ENDPOINT']) && !isset($opts['endpoint'])) {
             $opts['endpoint'] = $_ENV['ROLLBAR_ENDPOINT'];
@@ -51,7 +51,7 @@ class CurlSender implements SenderInterface
             $this->caCertPath = $opts['ca_cert_path'];
         }
     }
-    
+
     public function getEndpoint()
     {
         return $this->endpoint;
@@ -64,16 +64,16 @@ class CurlSender implements SenderInterface
         $this->setCurlOptions($handle, $payload, $accessToken);
         $result = curl_exec($handle);
         $statusCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-        
+
         $result = $result === false ?
                     curl_error($handle) :
                     json_decode($result, true);
-        
+
         curl_close($handle);
 
         $data = $payload->data();
         $uuid = $data['data']['uuid'];
-        
+
         return new Response($statusCode, $result, $uuid);
     }
 
@@ -128,13 +128,18 @@ class CurlSender implements SenderInterface
     public function setCurlOptions($handle, EncodedPayload $payload, $accessToken)
     {
         curl_setopt($handle, CURLOPT_URL, $this->endpoint);
-        curl_setopt($handle, CURLOPT_POST, true);
+        curl_setopt($handle, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($handle, CURLOPT_POSTFIELDS, $payload->encoded());
         curl_setopt($handle, CURLOPT_VERBOSE, false);
         curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, $this->verifyPeer);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($handle, CURLOPT_TIMEOUT, $this->timeout);
-        curl_setopt($handle, CURLOPT_HTTPHEADER, array('X-Rollbar-Access-Token: ' . $accessToken));
+        curl_setopt($handle, CURLOPT_HTTPHEADER, array(
+          'X-Rollbar-Access-Token: ' . $accessToken,
+          'Connection: Keep-Alive',
+          'Content-Type: application/json',
+          'Content-Length: ' . $payload->size(),
+          'Expect:'));
         curl_setopt($handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 
         if (!is_null($this->caCertPath)) {
@@ -183,7 +188,7 @@ class CurlSender implements SenderInterface
         }
         $this->maybeSendMoreBatchRequests($accessToken);
     }
-    
+
     public function toString()
     {
         return "Rollbar API endpoint: " . $this->getEndpoint();
