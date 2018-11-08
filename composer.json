@@ -1,15 +1,20 @@
 {
-  "name": "rollbar/rollbar",
+  "name": "ms502040/rollbar",
   "description": "Monitors errors and exceptions and reports them to Rollbar",
   "type": "library",
   "keywords": ["logging", "debugging", "monitoring", "errors", "exceptions"],
   "license": "MIT",
-  "homepage": "http://github.com/rollbar/rollbar-php",
+  "homepage": "http://github.com/ms502040/rollbar-php",
 
   "authors": [
     {
       "name": "Rollbar, Inc.",
       "email": "support@rollbar.com",
+      "role": "Developer"
+    },
+    {
+      "name": "Mira",
+      "email": "ms502040@gmail.com",
       "role": "Developer"
     }
   ],
