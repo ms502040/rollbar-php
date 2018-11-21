@@ -128,6 +128,7 @@ class CurlSender implements SenderInterface
     public function setCurlOptions($handle, EncodedPayload $payload, $accessToken)
     {
         curl_setopt($handle, CURLOPT_URL, $this->endpoint);
+        curl_setopt($handle, CURLOPT_USERAGENT, \Rollbar\Defaults::get()->notifier()->getName() . '/' . \Rollbar\Defaults::get()->notifier()->getVersion());
         curl_setopt($handle, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($handle, CURLOPT_POSTFIELDS, $payload->encoded());
         curl_setopt($handle, CURLOPT_VERBOSE, false);
