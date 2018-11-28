@@ -18,7 +18,7 @@ use Rollbar\Exceptions\PersonFuncException;
 class DataBuilder implements DataBuilderInterface
 {
     const ANONYMIZE_IP = 'anonymize';
-    
+
     protected static $defaults;
 
     protected $environment;
@@ -55,12 +55,12 @@ class DataBuilder implements DataBuilderInterface
     protected $captureIP;
     protected $captureEmail;
     protected $captureUsername;
-    
+
     /**
      * @var LevelFactory
      */
     protected $levelFactory;
-    
+
     /**
      * @var Utilities
      */
@@ -69,9 +69,9 @@ class DataBuilder implements DataBuilderInterface
     public function __construct($config)
     {
         self::$defaults = Defaults::get();
-        
+
         $this->setUtilities($config);
-        
+
         $this->setEnvironment($config);
 
         $this->setRawRequestBody($config);
@@ -115,13 +115,13 @@ class DataBuilder implements DataBuilderInterface
         $fromConfig = isset($config['capture_ip']) ? $config['capture_ip'] : null;
         $this->captureIP = self::$defaults->captureIP($fromConfig);
     }
-    
+
     protected function setCaptureEmail($config)
     {
         $fromConfig = isset($config['capture_email']) ? $config['capture_email'] : null;
         $this->captureEmail = self::$defaults->captureEmail($fromConfig);
     }
-    
+
     protected function setCaptureUsername($config)
     {
         $fromConfig = isset($config['capture_username']) ? $config['capture_username'] : null;
@@ -164,7 +164,7 @@ class DataBuilder implements DataBuilderInterface
         $fromConfig = isset($config['send_message_trace']) ? $config['send_message_trace'] : null;
         $this->sendMessageTrace = self::$defaults->sendMessageTrace($fromConfig);
     }
-    
+
     protected function setRawRequestBody($config)
     {
         $fromConfig = isset($config['include_raw_request_body']) ? $config['include_raw_request_body'] : null;
@@ -176,7 +176,7 @@ class DataBuilder implements DataBuilderInterface
         $fromConfig = isset($config['local_vars_dump']) ? $config['local_vars_dump'] : null;
         $this->localVarsDump = self::$defaults->localVarsDump($fromConfig);
     }
-    
+
     protected function setCaptureErrorStacktraces($config)
     {
         $fromConfig = isset($config['capture_error_stacktraces']) ? $config['capture_error_stacktraces'] : null;
@@ -218,9 +218,9 @@ class DataBuilder implements DataBuilderInterface
      */
     protected function setRequestBody($config)
     {
-        
+
         $this->requestBody = isset($config['requestBody']) ? $config['requestBody'] : null;
-        
+
         if (!$this->requestBody && $this->rawRequestBody) {
             $this->requestBody = file_get_contents("php://input");
             if (version_compare(PHP_VERSION, '5.6.0') < 0) {
@@ -259,19 +259,19 @@ class DataBuilder implements DataBuilderInterface
         if (!isset($fromConfig)) {
             $fromConfig = isset($config['branch']) ? $config['branch'] : null;
         }
-            
+
         $this->serverBranch = self::$defaults->branch($fromConfig);
-        
+
         if ($this->serverBranch === null) {
             $autodetectBranch = isset($config['autodetect_branch']) ?
                 $config['autodetect_branch'] :
                 self::$defaults->autodetectBranch();
-            
+
             if ($autodetectBranch) {
                 $allowExec = isset($config['allow_exec']) ?
                     $config['allow_exec'] :
                     self::$defaults->allowExec();
-                    
+
                 $this->serverBranch = $this->detectGitBranch($allowExec);
             }
         }
@@ -291,7 +291,7 @@ class DataBuilder implements DataBuilderInterface
     {
         $this->custom = isset($config['custom']) ? $config['custom'] : \Rollbar\Defaults::get()->custom();
     }
-    
+
     public function setCustomDataMethod($config)
     {
         $this->customDataMethod = isset($config['custom_data_method']) ?
@@ -333,7 +333,7 @@ class DataBuilder implements DataBuilderInterface
             isset($config['include_exception_code_context']) ? $config['include_exception_code_context'] : null;
         $this->includeExcCodeContext = self::$defaults->includeExcCodeContext($fromConfig);
     }
-    
+
     protected function setLevelFactory($config)
     {
         $this->levelFactory = isset($config['levelFactory']) ? $config['levelFactory'] : null;
@@ -343,7 +343,7 @@ class DataBuilder implements DataBuilderInterface
             );
         }
     }
-    
+
     protected function setUtilities($config)
     {
         $this->utilities = isset($config['utilities']) ? $config['utilities'] : null;
@@ -451,7 +451,7 @@ class DataBuilder implements DataBuilderInterface
         } else {
             $frames = array();
         }
-        
+
         $excInfo = new ExceptionInfo(
             $classOverride ?: get_class($exception),
             $exception->getMessage()
@@ -462,7 +462,7 @@ class DataBuilder implements DataBuilderInterface
     public function makeFrames($exception, $includeContext)
     {
         $frames = array();
-        
+
         foreach ($this->getTrace($exception) as $frameInfo) {
             $filename = isset($frameInfo['file']) ? $frameInfo['file'] : null;
             $lineno = isset($frameInfo['line']) ? $frameInfo['line'] : null;
@@ -475,7 +475,7 @@ class DataBuilder implements DataBuilderInterface
             $frame = new Frame($filename);
             $frame->setLineno($lineno)
                 ->setMethod($method);
-                
+
             if ($this->localVarsDump && $args !== null) {
                 $frame->setArgs($args);
             }
@@ -486,7 +486,7 @@ class DataBuilder implements DataBuilderInterface
 
             $frames[] = $frame;
         }
-        
+
         $frames = array_reverse($frames);
 
         return $frames;
@@ -523,10 +523,10 @@ class DataBuilder implements DataBuilderInterface
             return $exc->getBacktrace();
         } else {
             $trace = $exc->getTrace();
-            
+
             // Add the Exception's file and line as the last frame of the trace
             array_unshift($trace, array('file' => $exc->getFile(), 'line' => $exc->getLine()));
-            
+
             return $trace;
         }
     }
@@ -602,58 +602,58 @@ class DataBuilder implements DataBuilderInterface
             ->setParams($this->getRequestParams())
             ->setBody($this->getRequestBody())
             ->setUserIp($this->getUserIp());
-      
+
         if (isset($_SERVER)) {
             $request->setMethod(isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : null)
                 ->setQueryString(isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : null);
         }
-      
+
         if (isset($_GET)) {
             $request->setGet($_GET);
         }
         if (isset($_POST)) {
             $request->setPost($_POST);
         }
-        
+
         if ($request->getMethod() === 'PUT') {
             $postData = array();
             parse_str($request->getBody(), $postData);
             $request->setPost($postData);
         }
-        
+
         $extras = $this->getRequestExtras();
         if (!$extras) {
             $extras = array();
         }
 
         $request->setExtras($extras);
-        
+
         if (isset($_SESSION) && is_array($_SESSION) && count($_SESSION) > 0) {
             $request->setSession($_SESSION);
         }
         return $request;
     }
-    
+
     public function parseForwardedString($forwarded)
     {
         $result = array();
-        
+
         // Remove Forwarded   = 1#forwarded-element header prefix
         $parts = trim(str_replace('Forwarded:', '', $forwarded));
-        
+
         /**
          * Break up the forwarded-element =
          *  [ forwarded-pair ] *( ";" [ forwarded-pair ] )
          */
         $parts = explode(';', $parts);
-        
+
         /**
          * Parse forwarded pairs
          */
         foreach ($parts as $forwardedPair) {
             $forwardedPair = trim($forwardedPair);
-            
-            
+
+
             if (stripos($forwardedPair, 'host=') !== false) {
                 // Parse 'host' forwarded pair
                 $result['host'] = substr($forwardedPair, strlen('host='));
@@ -665,7 +665,7 @@ class DataBuilder implements DataBuilderInterface
                 $fpParts = explode(',', $forwardedPair);
                 foreach ($fpParts as $fpPart) {
                     $fpPart = trim($fpPart);
-                    
+
                     if (stripos($fpPart, 'for=') !== false) {
                         // Parse 'for' forwarded pair
                         $result['for'] = isset($result['for']) ? $result['for'] : array();
@@ -678,21 +678,21 @@ class DataBuilder implements DataBuilderInterface
                 }
             }
         }
-        
+
         return $result;
     }
-    
+
     /*
      * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function getUrlProto()
     {
         $proto = '';
-        
+
         if (!empty($_SERVER['HTTP_FORWARDED'])) {
             extract($this->parseForwardedString($_SERVER['HTTP_FORWARDED']));
         }
-        
+
         if (empty($proto)) {
             if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
                 $proto = explode(',', strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']));
@@ -703,21 +703,21 @@ class DataBuilder implements DataBuilderInterface
                 $proto = 'http';
             }
         }
-        
+
         return $proto;
     }
-    
+
     /*
      * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function getUrlHost()
     {
         $host = '';
-        
+
         if (!empty($_SERVER['HTTP_FORWARDED'])) {
             extract($this->parseForwardedString($_SERVER['HTTP_FORWARDED']));
         }
-        
+
         if (empty($host)) {
             if (!empty($_SERVER['HTTP_X_FORWARDED_HOST'])) {
                 $host = $_SERVER['HTTP_X_FORWARDED_HOST'];
@@ -730,17 +730,17 @@ class DataBuilder implements DataBuilderInterface
                 $host = 'unknown';
             }
         }
-        
+
         return $host;
     }
-    
+
     /*
      * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function getUrlPort($proto)
     {
         $port = '';
-        
+
         if (!empty($_SERVER['HTTP_X_FORWARDED_PORT'])) {
             $port = $_SERVER['HTTP_X_FORWARDED_PORT'];
         } elseif (!empty($_SERVER['SERVER_PORT'])) {
@@ -750,7 +750,7 @@ class DataBuilder implements DataBuilderInterface
         } else {
             $port = 80;
         }
-        
+
         return $port;
     }
 
@@ -762,7 +762,7 @@ class DataBuilder implements DataBuilderInterface
         $proto = $this->getUrlProto();
         $host = $this->getUrlHost();
         $port = $this->getUrlPort($proto);
-        
+
 
         $url = $proto . '://' . $host;
         if (($proto == 'https' && $port != 443) || ($proto == 'http' && $port != 80)) {
@@ -788,6 +788,9 @@ class DataBuilder implements DataBuilderInterface
     {
         $headers = array();
         if (isset($_SERVER)) {
+            if (isset($_SERVER['CONTENT_TYPE'])){
+              $_SERVER['HTTP_CONTENT_TYPE'] = $_SERVER['CONTENT_TYPE'];
+            }
             foreach ($_SERVER as $key => $val) {
                 if (substr($key, 0, 5) == 'HTTP_') {
                     // convert HTTP_CONTENT_TYPE to Content-Type, HTTP_HOST to Host, etc.
@@ -804,7 +807,7 @@ class DataBuilder implements DataBuilderInterface
         }
     }
 
-    
+
     protected function getRequestParams()
     {
         return $this->requestParams;
@@ -823,9 +826,9 @@ class DataBuilder implements DataBuilderInterface
         if (!isset($_SERVER) || $this->captureIP === false) {
             return null;
         }
-        
+
         $ipAddress = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null;
-        
+
         $forwardFor = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : null;
         if ($forwardFor) {
             // return everything until the first comma
@@ -836,7 +839,7 @@ class DataBuilder implements DataBuilderInterface
         if ($realIp) {
             $ipAddress = $realIp;
         }
-        
+
         if ($this->captureIP === DataBuilder::ANONYMIZE_IP) {
             if (filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
                 $parts = explode('.', $ipAddress);
@@ -850,7 +853,7 @@ class DataBuilder implements DataBuilderInterface
                     '0000:0000:0000:0000:0000';
             }
         }
-        
+
         return $ipAddress;
     }
 
@@ -943,12 +946,12 @@ class DataBuilder implements DataBuilderInterface
     {
         return $this->serverExtras;
     }
-    
+
     public function getCustom()
     {
         return $this->custom;
     }
-    
+
     public function getCustomDataMethod()
     {
         return $this->customDataMethod;
@@ -966,37 +969,37 @@ class DataBuilder implements DataBuilderInterface
         } elseif (!is_array($custom)) {
             $custom = get_object_vars($custom);
         }
-        
+
         if ($customDataMethod = $this->getCustomDataMethod()) {
             $customDataMethodContext = isset($context['custom_data_method_context']) ?
                 $context['custom_data_method_context'] :
                 null;
-                
+
             $customDataMethodResult = $customDataMethod($toLog, $customDataMethodContext);
-            
+
             $custom = array_merge($custom, $customDataMethodResult);
         }
-        
+
         unset($context['custom_data_method_context']);
 
         return $custom;
     }
-    
+
     public function addCustom($key, $data)
     {
         if ($this->custom === null) {
             $this->custom = array();
         }
-        
+
         if (!is_array($this->custom)) {
             throw new \Exception(
                 "Custom data configured in Rollbar::init() is not an array."
             );
         }
-        
+
         $this->custom[$key] = $data;
     }
-    
+
     public function removeCustom($key)
     {
         unset($this->custom[$key]);
@@ -1053,7 +1056,7 @@ class DataBuilder implements DataBuilderInterface
 
         return $source;
     }
-    
+
     /**
      * Wrap a PHP error in an ErrorWrapper class and add backtrace information
      *
@@ -1075,7 +1078,7 @@ class DataBuilder implements DataBuilderInterface
             $this->utilities
         );
     }
-    
+
     /**
      * Fetches the stack trace for fatal and regular errors.
      *
@@ -1088,9 +1091,9 @@ class DataBuilder implements DataBuilderInterface
     {
         if ($this->captureErrorStacktraces) {
             $backTrace = $this->fetchErrorTrace();
-            
+
             $backTrace = $this->stripShutdownFrames($backTrace);
-            
+
             // Add the final frame
             array_unshift(
                 $backTrace,
@@ -1099,10 +1102,10 @@ class DataBuilder implements DataBuilderInterface
         } else {
             $backTrace = array();
         }
-        
+
         return $backTrace;
     }
-    
+
     private function fetchErrorTrace()
     {
         if (function_exists('xdebug_get_function_stack')) {
@@ -1111,28 +1114,28 @@ class DataBuilder implements DataBuilderInterface
             return debug_backtrace($this->localVarsDump ? 0 : DEBUG_BACKTRACE_IGNORE_ARGS);
         }
     }
-    
+
     private function stripShutdownFrames($backTrace)
     {
         foreach ($backTrace as $index => $frame) {
             extract($frame);
-            
+
             $fatalHandlerMethod = (isset($method)
                                     && $method === 'Rollbar\\Handlers\\FatalHandler::handle');
-                                    
+
             $fatalHandlerClassAndFunction = (isset($class)
                                                 && $class === 'Rollbar\\Handlers\\FatalHandler'
                                                 && isset($function)
                                                 && $function === 'handle');
-            
+
             $errorHandlerMethod = (isset($method)
                                     && $method === 'Rollbar\\Handlers\\ErrorHandler::handle');
-                                    
+
             $errorHandlerClassAndFunction = (isset($class)
                                                 && $class === 'Rollbar\\Handlers\\ErrorHandler'
                                                 && isset($function)
                                                 && $function === 'handle');
-            
+
             if ($fatalHandlerMethod ||
                  $fatalHandlerClassAndFunction ||
                  $errorHandlerMethod ||
@@ -1140,10 +1143,10 @@ class DataBuilder implements DataBuilderInterface
                 return array_slice($backTrace, $index+1);
             }
         }
-        
+
         return $backTrace;
     }
-    
+
     public function detectGitBranch($allowExec = true)
     {
         if ($allowExec) {
@@ -1157,7 +1160,7 @@ class DataBuilder implements DataBuilderInterface
         }
         return null;
     }
-    
+
     private static function getGitBranch()
     {
         try {
